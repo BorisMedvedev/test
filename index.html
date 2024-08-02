@@ -5,6 +5,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Удаление фона и загрузка изображений</title>
+  <style>
+    .loading {
+      display: none;
+      width: 60px;
+      height: 60px;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #3498db;
+      border-radius: 50%;
+      animation: spin 2s linear infinite;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -16,12 +41,15 @@
     фон</button>
   <a id="downloadButton" style="display: none;">Скачать</a>
 
+  <div id="loadingSpinner" class="loading"></div>
+
   <script>
     window.onload = function () {
       let image = document.getElementById('image');
       let inputImage = document.getElementById('inputImage');
       let removeBackgroundButton = document.getElementById('removeBackgroundButton');
       let downloadButton = document.getElementById('downloadButton');
+      let loadingSpinner = document.getElementById('loadingSpinner');
 
       let apiKey = 'DAi5YP9HLwYHbh42xtEAcQLs';
 
@@ -44,6 +72,7 @@
       removeBackgroundButton.addEventListener('click', function () {
         let formData = new FormData();
         formData.append('image_file', inputImage.files[0]);
+        loadingSpinner.style.display = 'block';
 
         fetch('https://api.remove.bg/v1.0/removebg', {
           method: 'POST',
@@ -60,8 +89,12 @@
             downloadButton.download = 'no-background.png';
             downloadButton.style.display = 'inline-block';
             downloadButton.textContent = 'Скачать';
+            loadingSpinner.style.display = 'none';
           })
-          .catch(error => console.error('Ошибка:', error));
+          .catch(error => {
+            console.error('Ошибка:', error);
+            loadingSpinner.style.display = 'none';
+          });
       });
     }
   </script>
