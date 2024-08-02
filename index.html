@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Удаление фона и загрузка изображений</title>
+</head>
+
+<body>
+  <input type="file" id="inputImage" accept="image/*">
+  <br>
+  <img id="image" style="max-width:100%; display: none;">
+  <br>
+  <button id="removeBackgroundButton" style="display: none;">Удалить
+    фон</button>
+  <a id="downloadButton" style="display: none;">Скачать</a>
+
+  <script>
+    window.onload = function () {
+      let image = document.getElementById('image');
+      let inputImage = document.getElementById('inputImage');
+      let removeBackgroundButton = document.getElementById('removeBackgroundButton');
+      let downloadButton = document.getElementById('downloadButton');
+
+      let apiKey = 'DAi5YP9HLwYHbh42xtEAcQLs';
+
+      inputImage.addEventListener('change', function (event) {
+        let files = event.target.files;
+        let file;
+
+        if (files && files.length > 0) {
+          file = files[0];
+          let reader = new FileReader();
+          reader.onload = function (e) {
+            image.src = e.target.result;
+            image.style.display = 'block';
+            removeBackgroundButton.style.display = 'inline-block';
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      removeBackgroundButton.addEventListener('click', function () {
+        let formData = new FormData();
+        formData.append('image_file', inputImage.files[0]);
+
+        fetch('https://api.remove.bg/v1.0/removebg', {
+          method: 'POST',
+          headers: {
+            'X-Api-Key': apiKey,
+          },
+          body: formData
+        })
+          .then(response => response.blob())
+          .then(blob => {
+            let url = URL.createObjectURL(blob);
+            image.src = url;
+            downloadButton.href = url;
+            downloadButton.download = 'no-background.png';
+            downloadButton.style.display = 'inline-block';
+            downloadButton.textContent = 'Скачать';
+          })
+          .catch(error => console.error('Ошибка:', error));
+      });
+    }
+  </script>
+</body>
+
+</html>
